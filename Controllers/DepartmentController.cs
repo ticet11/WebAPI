@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         {
             string query = @"select departmentID, departmentName from employeedb.department";
             DataTable table = new DataTable();
-            string MySqlDataSource = _configuration.GetConnectionString("EmployeeAppCon");
+            string MySqlDataSource = _configuration["EmployeeAppCon"];
             MySqlDataReader myReader;
             using(MySqlConnection myCon=new MySqlConnection(MySqlDataSource))
             {
