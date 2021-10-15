@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using WebAPI.Helpers;
 
 namespace WebAPI.Controllers
 {
@@ -22,26 +23,10 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetDepartment()
+        public JsonResult GetDepartments()
         {
-            string query = @"select departmentID, departmentName from employeedb.department";
-            DataTable table = new DataTable();
-            string MySqlDataSource = _configuration["EmployeeAppCon"];
-            MySqlDataReader myReader;
-            using(MySqlConnection myCon=new MySqlConnection(MySqlDataSource))
-            {
-                myCon.Open();
-                using(MySqlCommand myCommand = new MySqlCommand(query, myCon))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-
-            return new JsonResult(table);
+            StoredProcs storedProcs = new StoredProcs(_configuration);
+            return new JsonResult(storedProcs.GetDepartments());
         }
     }
 }
