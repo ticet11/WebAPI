@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using WebAPI.Helpers;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
@@ -27,6 +28,13 @@ namespace WebAPI.Controllers
         {
             StoredProcs storedProcs = new StoredProcs(_configuration);
             return new JsonResult(storedProcs.GetDepartments());
+        }
+
+        [HttpPost]
+        public JsonResult AddDepartment(Department department)
+        {
+            StoredProcs storedProcs = new StoredProcs(_configuration);
+            return new JsonResult(storedProcs.AddDepartment(department));
         }
     }
 }
