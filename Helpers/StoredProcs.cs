@@ -163,5 +163,54 @@ namespace WebAPI.Helpers
                 return new JsonResult(new { error = $"Error {ex.Number}: {ex.Message}" });
             }
         }
+
+        public JsonResult DeleteDepartment(Department department)
+        {
+            MySqlConnection conn = new();
+            string MySqlDataSource = _configuration["EmployeeAppCon"];
+            conn.ConnectionString = MySqlDataSource;
+            MySqlCommand cmd = new();
+
+            try
+            {
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "DROP PROCEDURE IF EXISTS DeleteDepartment";
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = $"CREATE PROCEDURE DeleteDepartment() " +
+                                  $"BEGIN DELETE FROM `departments` " +
+                                  $"WHERE DepartmentId = {department.ID}; " +
+                                  $"END";
+                cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException ex)
+            {
+                return new JsonResult(new { error = $"Error {ex.Number}: {ex.Message}" });
+            }
+            conn.Close();
+
+            try
+            {
+                DataTable table = new DataTable();
+                MySqlDataReader myReader;
+
+                conn.Open();
+                using (MySqlCommand myCommand = new MySqlCommand("DeleteDepartment", conn))
+                {
+                    myCommand.CommandType = CommandType.StoredProcedure;
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    conn.Close();
+                }
+
+                return new JsonResult(new { success = $"Deleted {department.DepartmentName} from Departments Table." });
+            }
+            catch (MySqlException ex)
+            {
+                return new JsonResult(new { error = $"Error {ex.Number}: {ex.Message}" });
+            }
+        }
     }
 }
