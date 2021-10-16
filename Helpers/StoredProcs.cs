@@ -78,8 +78,9 @@ namespace WebAPI.Helpers
                 cmd.CommandText = "DROP PROCEDURE IF EXISTS AddDepartment";
                 cmd.ExecuteNonQuery();
                 cmd.CommandText = $"CREATE PROCEDURE AddDepartment() " +
-                                  $"BEGIN INSERT INTO `departments` " +
-                                  $"VALUES(null, {department.DepartmentName}); " +
+                                  $"BEGIN " +
+                                  $"INSERT INTO `departments` " +
+                                  $"VALUES(null, '{department.DepartmentName}'); " +
                                   $"END";
                 cmd.ExecuteNonQuery();
             }
@@ -105,14 +106,62 @@ namespace WebAPI.Helpers
                     conn.Close();
                 }
 
-                return new JsonResult(new { success = $"Added {department} to Departments Table." });
+                return new JsonResult(new { success = $"Added {department.DepartmentName} to Departments Table." });
             }
             catch (MySqlException ex)
             {
                 return new JsonResult(new { error = $"Error {ex.Number}: {ex.Message}" });
             }
+        }
 
+        public JsonResult UpdateDepartmentName(Department department)
+        {
+            MySqlConnection conn = new();
+            string MySqlDataSource = _configuration["EmployeeAppCon"];
+            conn.ConnectionString = MySqlDataSource;
+            MySqlCommand cmd = new();
 
+            try
+            {
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "DROP PROCEDURE IF EXISTS UpdateDepartment";
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = $"CREATE PROCEDURE UpdateDepartment() " +
+                                  $"BEGIN UPDATE `departments` SET " +
+                                  $"DepartmentName = '{department.DepartmentName}' " +
+                                  $"WHERE DepartmentId = {department.ID}; " +
+                                  $"END";
+                cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException ex)
+            {
+                return new JsonResult(new { error = $"Error {ex.Number}: {ex.Message}" });
+            }
+            conn.Close();
+
+            try
+            {
+                DataTable table = new DataTable();
+                MySqlDataReader myReader;
+
+                conn.Open();
+                using (MySqlCommand myCommand = new MySqlCommand("UpdateDepartment", conn))
+                {
+                    myCommand.CommandType = CommandType.StoredProcedure;
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    conn.Close();
+                }
+
+                return new JsonResult(new { success = $"Updated {department.ID} to {department.DepartmentName} in Departments Table." });
+            }
+            catch (MySqlException ex)
+            {
+                return new JsonResult(new { error = $"Error {ex.Number}: {ex.Message}" });
+            }
         }
     }
 }

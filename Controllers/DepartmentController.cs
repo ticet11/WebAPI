@@ -36,5 +36,12 @@ namespace WebAPI.Controllers
             StoredProcs storedProcs = new StoredProcs(_configuration);
             return new JsonResult(storedProcs.AddDepartment(department));
         }
+
+        [HttpPut]
+        public JsonResult UpdateDepartment(Department department)
+        {
+            StoredProcs storedProcs = new StoredProcs(_configuration);
+            return new JsonResult(storedProcs.UpdateDepartmentName(department));
+        }
     }
 }
