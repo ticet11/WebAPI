@@ -14,41 +14,41 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EmployeeController : ControllerBase
+    public class DepartmentController : ControllerBase
     {
         private readonly IConfiguration _configuration;
 
-        public EmployeeController(IConfiguration configuration)
+        public DepartmentController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
         [HttpGet]
-        public JsonResult GetEmployees()
+        public JsonResult GetDepartments()
         {
             StoredProcs storedProcs = new StoredProcs(_configuration);
-            return new JsonResult(storedProcs.GetEmployees());
+            return new JsonResult(storedProcs.GetDepartments());
         }
 
         [HttpPost]
-        public JsonResult AddEmployee(Employee employee)
+        public JsonResult AddDepartment(Department department)
         {
             StoredProcs storedProcs = new StoredProcs(_configuration);
-            return new JsonResult(storedProcs.AddEmployee(employee));
+            return new JsonResult(storedProcs.AddDepartment(department));
         }
 
         [HttpPut]
-        public JsonResult UpdateEmployee(Employee employee)
+        public JsonResult UpdateDepartment(Department department)
         {
             StoredProcs storedProcs = new StoredProcs(_configuration);
-            return new JsonResult(storedProcs.UpdateEmployee(employee));
+            return new JsonResult(storedProcs.UpdateDepartmentName(department));
         }
 
         [HttpDelete]
-        public JsonResult DeleteEmployee(Employee employee)
+        public JsonResult DeleteDepartment(Department department)
         {
             StoredProcs storedProcs = new StoredProcs(_configuration);
-            return new JsonResult(storedProcs.DeleteEmployee(employee));
+            return new JsonResult(storedProcs.DeleteDepartment(department));
         }
     }
 }
