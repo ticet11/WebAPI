@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
@@ -14,41 +15,53 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DepartmentController : ControllerBase
+    public class EmployeeController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DepartmentController(IConfiguration configuration)
+        public EmployeeController(IConfiguration configuration, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
+            _environment = environment;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet]
-        public JsonResult GetDepartments()
+        public JsonResult GetEmployees()
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration);
-            return new JsonResult(storedProcs.GetDepartments());
+            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            return new JsonResult(storedProcs.GetEmployees());
         }
 
         [HttpPost]
-        public JsonResult AddDepartment(Department department)
+        public JsonResult AddEmployee(Employee employee)
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration);
-            return new JsonResult(storedProcs.AddDepartment(department));
+            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            return new JsonResult(storedProcs.AddEmployee(employee));
         }
 
         [HttpPut]
-        public JsonResult UpdateDepartment(Department department)
+        public JsonResult UpdateEmployee(Employee employee)
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration);
-            return new JsonResult(storedProcs.UpdateDepartmentName(department));
+            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            return new JsonResult(storedProcs.UpdateEmployee(employee));
         }
 
         [HttpDelete]
-        public JsonResult DeleteDepartment(Department department)
+        public JsonResult DeleteEmployee(Employee employee)
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration);
-            return new JsonResult(storedProcs.DeleteDepartment(department));
+            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            return new JsonResult(storedProcs.DeleteEmployee(employee));
+        }
+
+        [Route("AddEmployeePhoto")]
+        [HttpPost]
+        public JsonResult AddEmployeePhoto()
+        {
+            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            return new JsonResult(storedProcs.AddEmployeePhoto());
         }
     }
 }
