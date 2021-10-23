@@ -349,7 +349,8 @@ namespace WebAPI.Helpers
                                   $"BEGIN UPDATE `employees` SET " +
                                   $"employeeName = '{employee.Name}', " +
                                   $"employeeDepartment = '{employee.Department}', " +
-                                  $"employeeJoinDate = '{employee.JoinDate}' " +
+                                  $"employeeJoinDate = '{employee.JoinDate}', " +
+                                  $"employeePhotoFile = '{employee.PhotoFile}' " +
                                   $"WHERE employeeID = {employee.ID}; " +
                                   $"END";
                 cmd.ExecuteNonQuery();
