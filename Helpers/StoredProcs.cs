@@ -442,7 +442,7 @@ namespace WebAPI.Helpers
                 IFormCollection httpRequest = _contextAccessor.HttpContext.Request.Form;
                 IFormFile postedFile = httpRequest.Files[0];
                 string newFileName = Regex.Replace(httpRequest["employeeName"], @"\s+", String.Empty);
-                string empID = httpRequest["employeeID"];
+                string empID = httpRequest["employeeJoinDate"];
                 string fileName = postedFile.FileName;
                 int dotIndex = fileName.LastIndexOf('.');
                 string newFileExt = fileName.Substring(dotIndex);
