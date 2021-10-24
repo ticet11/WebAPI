@@ -6,6 +6,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Data;
 using System.IO;
+using System.Text.RegularExpressions;
 using WebAPI.Models;
 
 namespace WebAPI.Helpers
@@ -438,17 +439,21 @@ namespace WebAPI.Helpers
         {
             try
             {
-                var httpRequest = _contextAccessor.HttpContext.Request.Form;
-                var postedFile = httpRequest.Files[0];
-                string filename = postedFile.FileName;
-                var physicalPath = _environment.ContentRootPath + "/EmployeePhotos/" + filename;
+                IFormCollection httpRequest = _contextAccessor.HttpContext.Request.Form;
+                IFormFile postedFile = httpRequest.Files[0];
+                string newFileName = Regex.Replace(httpRequest["employeeName"], @"\s+", String.Empty);
+                string empID = httpRequest["employeeID"];
+                string fileName = postedFile.FileName;
+                int dotIndex = fileName.LastIndexOf('.');
+                string newFileExt = fileName.Substring(dotIndex);
+                var physicalPath = _environment.ContentRootPath + "/EmployeePhotos/" + empID + "_" + newFileName + newFileExt;
 
                 using (var stream = new FileStream(physicalPath, FileMode.Create))
                 {
                     postedFile.CopyTo(stream);
                 }
 
-                return new JsonResult(filename);
+                return new JsonResult(fileName);
             }
             catch
             {
