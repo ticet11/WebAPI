@@ -2,12 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using WebAPI.Helpers;
 using WebAPI.Models;
 
@@ -31,28 +26,44 @@ namespace WebAPI.Controllers
         [HttpGet]
         public JsonResult GetEmployees()
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            StoredProcs storedProcs = new StoredProcs(_configuration);
             return new JsonResult(storedProcs.GetEmployees());
         }
 
         [HttpPost]
         public JsonResult AddEmployee(Employee employee)
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            StoredProcs storedProcs = new StoredProcs(_configuration);
             return new JsonResult(storedProcs.AddEmployee(employee));
         }
 
         [HttpPut]
         public JsonResult UpdateEmployee(Employee employee)
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            StoredProcs storedProcs = new StoredProcs(_configuration);
             return new JsonResult(storedProcs.UpdateEmployee(employee));
         }
 
         [HttpDelete]
         public JsonResult DeleteEmployee(Employee employee)
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
+            if (employee.PhotoFile != "default.png")
+            {
+                int dotIndex = employee.PhotoFile.IndexOf('.');
+                string photoFileName = employee.PhotoFile.Substring(0, dotIndex);
+                string empPhotoPath = _environment.ContentRootPath + "/EmployeePhotos/";
+                DirectoryInfo dirInfo = new DirectoryInfo(empPhotoPath);
+                FileInfo[] filesList = dirInfo.GetFiles($"{photoFileName}*");
+                if (filesList.Length > 0)
+                {
+                    foreach (FileInfo file in filesList)
+                    {
+                        file.Delete();
+                    }
+                }
+            }
+
+            StoredProcs storedProcs = new StoredProcs(_configuration);
             return new JsonResult(storedProcs.DeleteEmployee(employee));
         }
 
@@ -60,8 +71,41 @@ namespace WebAPI.Controllers
         [HttpPost]
         public JsonResult AddEmployeePhoto()
         {
-            StoredProcs storedProcs = new StoredProcs(_configuration, _environment, _httpContextAccessor);
-            return new JsonResult(storedProcs.AddEmployeePhoto());
+            try
+            {
+                IFormCollection httpRequest = _httpContextAccessor.HttpContext.Request.Form;
+                IFormFile postedFile = httpRequest.Files[0];
+                string fileName = postedFile.Name;
+                string newFileName = postedFile.FileName;
+                string empPhotoPath = _environment.ContentRootPath + "/EmployeePhotos/";
+                string physicalPath = empPhotoPath + newFileName;
+
+                if (fileName != "default.png" && newFileName != "default.png")
+                {
+                    int dotIndex = postedFile.FileName.LastIndexOf('.');
+                    DirectoryInfo dirInfo = new DirectoryInfo(empPhotoPath);
+                    FileInfo[] filesList = dirInfo.GetFiles($"{newFileName.Substring(0, dotIndex)}*");
+                    if (filesList.Length > 0)
+                    {
+                        foreach (FileInfo file in filesList)
+                        {
+                            file.Delete();
+                        }
+                    }
+
+                    using (var stream = new FileStream(physicalPath, FileMode.Create))
+                    {
+                        postedFile.CopyTo(stream);
+                    }
+                }
+
+                return new JsonResult(fileName);
+            }
+            catch
+            {
+                return new JsonResult("default.png");
+            }
+
         }
     }
 }

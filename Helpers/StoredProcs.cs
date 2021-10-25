@@ -1,12 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
-using System;
 using System.Data;
-using System.IO;
-using System.Text.RegularExpressions;
 using WebAPI.Models;
 
 namespace WebAPI.Helpers
@@ -14,14 +9,10 @@ namespace WebAPI.Helpers
     public class StoredProcs
     {
         private readonly IConfiguration _configuration;
-        private readonly IWebHostEnvironment _environment;
-        private readonly IHttpContextAccessor _contextAccessor;
 
-        public StoredProcs(IConfiguration configuration, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
+        public StoredProcs(IConfiguration configuration)
         {
             _configuration = configuration;
-            _environment = environment;
-            _contextAccessor = httpContextAccessor;
         }
 
         #region Departments
@@ -433,30 +424,6 @@ namespace WebAPI.Helpers
             {
                 return new JsonResult(new { error = $"Error {ex.Number}: {ex.Message}" });
             }
-        }
-
-        public JsonResult AddEmployeePhoto()
-        {
-            try
-            {
-                IFormCollection httpRequest = _contextAccessor.HttpContext.Request.Form;
-                IFormFile postedFile = httpRequest.Files[0];
-                string fileName = postedFile.Name;
-                string newFileName = postedFile.FileName;
-                var physicalPath = _environment.ContentRootPath + "/EmployeePhotos/" + newFileName;
-
-                using (var stream = new FileStream(physicalPath, FileMode.Create))
-                {
-                    postedFile.CopyTo(stream);
-                }
-
-                return new JsonResult(fileName);
-            }
-            catch
-            {
-                return new JsonResult("anonymous.png");
-            }
-
         }
         #endregion Employees
     }
